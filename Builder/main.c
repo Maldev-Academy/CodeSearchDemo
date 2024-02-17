@@ -8,13 +8,13 @@
 
 // -------------------------------- //// -------------------------------- //// -------------------------------- //
 
-#define     MIN_KEY_SIZE      2
+#define     	MIN_KEY_SIZE      2
 #define		MAX_KEY_SIZE	128
 
 BYTE EncryptSubmittedKey(IN PBYTE pKeyArray, IN SIZE_T sKeySize) {
 
-    BYTE    HintByte = pKeyArray[1];
-    BYTE    EncryptionByte = (rand() * pKeyArray[0]) % 0xFF;        
+    BYTE    HintByte 		= pKeyArray[1];
+    BYTE    EncryptionByte 	= (rand() * pKeyArray[0]) % 0xFF;        
 
     for (int i = 0; i < sKeySize; i++)
         pKeyArray[i] = pKeyArray[i] ^ EncryptionByte;
@@ -48,15 +48,15 @@ BOOL InstallAesEncryptionViaCtAes(IN PBYTE pRawDataBuffer, IN SIZE_T sRawBufferS
 	if (!pRawDataBuffer || !sRawBufferSize || !ppCipherTextBuffer || !psCipherTextSize || !pAesKey || !pAesIv)
 		return FALSE;
 
-	PBYTE			pNewBuffer = pRawDataBuffer,
-		pTmpCipherBuff = NULL;
-	SIZE_T			sNewBufferSize = sRawBufferSize;
-	AES256_CBC_ctx	AesCtx = { 0x00 };
+	PBYTE			pNewBuffer 		= pRawDataBuffer,
+				pTmpCipherBuff 		= NULL;
+	SIZE_T			sNewBufferSize	 	= sRawBufferSize;
+	AES256_CBC_ctx		AesCtx 			= { 0x00 };
 
 	if (sRawBufferSize % 16 != 0x00) {
 
-		sNewBufferSize = sRawBufferSize + 16 - (sRawBufferSize % 16);
-		pNewBuffer = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sNewBufferSize);
+		sNewBufferSize 	= sRawBufferSize + 16 - (sRawBufferSize % 16);
+		pNewBuffer 	= HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sNewBufferSize);
 
 		if (!pNewBuffer) {
 			printf("[!] HeapAlloc Failed With Error: %d \n", GetLastError());
@@ -75,8 +75,8 @@ BOOL InstallAesEncryptionViaCtAes(IN PBYTE pRawDataBuffer, IN SIZE_T sRawBufferS
 	AES256_CBC_init(&AesCtx, pAesKey, pAesIv);
 	AES256_CBC_encrypt(&AesCtx, (sNewBufferSize / 16), pTmpCipherBuff, pNewBuffer);
 
-	*ppCipherTextBuffer = pTmpCipherBuff;
-	*psCipherTextSize = sNewBufferSize;
+	*ppCipherTextBuffer 	= pTmpCipherBuff;
+	*psCipherTextSize 	= sNewBufferSize;
 
 	return TRUE;
 }
@@ -85,10 +85,10 @@ BOOL InstallAesEncryptionViaCtAes(IN PBYTE pRawDataBuffer, IN SIZE_T sRawBufferS
 
 BOOL ReadFileFromDiskA(IN LPCSTR cFileName, OUT PBYTE* ppFileBuffer, OUT PDWORD pdwFileSize) {
 
-	HANDLE		hFile = INVALID_HANDLE_VALUE;
-	DWORD		dwFileSize = NULL,
-		dwNumberOfBytesRead = NULL;
-	PBYTE		pBaseAddress = NULL;
+	HANDLE		hFile	 		= INVALID_HANDLE_VALUE;
+	DWORD		dwFileSize 		= NULL,
+			dwNumberOfBytesRead 	= NULL;
+	PBYTE		pBaseAddress	 	= NULL;
 
 	if (!cFileName || !pdwFileSize || !ppFileBuffer)
 		goto _END_OF_FUNC;
@@ -113,8 +113,8 @@ BOOL ReadFileFromDiskA(IN LPCSTR cFileName, OUT PBYTE* ppFileBuffer, OUT PDWORD 
 		goto _END_OF_FUNC;
 	}
 
-	*ppFileBuffer = pBaseAddress;
-	*pdwFileSize = dwFileSize;
+	*ppFileBuffer 	= pBaseAddress;
+	*pdwFileSize 	= dwFileSize;
 
 _END_OF_FUNC:
 	if (hFile != INVALID_HANDLE_VALUE)
@@ -131,10 +131,10 @@ extern int __cdecl _rdrand32_step(unsigned int*);
 
 PBYTE GenerateRandomKey3(IN DWORD dwKeySize) {
 
-	PBYTE			pKey = NULL;
-	unsigned short	us2RightMostBytes = NULL;
-	unsigned int	uiSeed = 0x00;
-	BOOL			bResult = FALSE;
+	PBYTE			pKey 			= NULL;
+	unsigned short		us2RightMostBytes 	= NULL;
+	unsigned int		uiSeed 			= 0x00;
+	BOOL			bResult 		= FALSE;
 
 	if (!(pKey = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, dwKeySize))) {
 		printf("[!] HeapAlloc Failed With Error: %d \n", GetLastError());
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 	PBYTE		pAESKey			= GenerateRandomKey3(32);
 	PBYTE		pAESIv			= GenerateRandomKey3(16);
 	ULONG_PTR	uCipheText		= NULL;
-	SIZE_T		sCipherTextSize = NULL;
+	SIZE_T		sCipherTextSize 	= NULL;
 
 	if (!InstallAesEncryptionViaCtAes(uFileBuffer, dwFileSize, pAESKey, pAESIv, &uCipheText, &sCipherTextSize))
 		return -1;
