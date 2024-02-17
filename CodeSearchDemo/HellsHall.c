@@ -5,7 +5,7 @@
 #include "HellsHall.h"
 
 
-#define	SYSCALL_STUB_SIZE		0x20		// Size of a syscall stub is 32 byte
+#define	SYSCALL_STUB_SIZE	0x20		// Size of a syscall stub is 32 byte
 
 #define SEARCH_UP               ( -1 * SYSCALL_STUB_SIZE )
 #define SEARCH_DOWN             SYSCALL_STUB_SIZE
