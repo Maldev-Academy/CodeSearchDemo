@@ -27,11 +27,9 @@ This repository showcases the [Maldev Academy Code Search](https://search.maldev
 
 ## Payload Builder Video Demo
 
-https://vimeo.com/914305790?share=copy
+[![Builder VD](https://github.com/Maldev-Academy/CodeSearchDemo/assets/111295429/71d9d39f-605b-462d-8293-624dbc37c7fa)](https://vimeo.com/914305790?share=copy)
 
 ## Shellcode Loader
 
-https://vimeo.com/914301843?share=copy
-
-
+[![Builder VD](https://github.com/Maldev-Academy/CodeSearchDemo/assets/111295429/385ba599-97c7-4b4d-9c9f-111f3d7189ce)](https://vimeo.com/914301843?share=copy)
 
